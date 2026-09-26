@@ -1,3 +1,29 @@
+## About this personal distribution
+
+The `preview` branch of this repository maintains a personal distribution based on [DBX](https://github.com/t8y2/dbx). It is not an official upstream release. It adds persistent table favorites and integrates upstream changes for compatibility testing and releases.
+
+- **Table favorites:** add tables from the sidebar or table tab menu, open them from the toolbar favorites list, edit names and codes, and keep favorites across restarts.
+- **Downloads:** use [this repository's Releases](https://github.com/zy-nh/dbx/releases) for this distribution. See each release for its upstream baseline, supported platforms, installation instructions, and known limitations.
+- **Feedback:** report distribution-specific and favorites issues in [this repository's Issues](https://github.com/zy-nh/dbx/issues). Do not include passwords or other sensitive connection information.
+
+### Branches and contributions
+
+| Branch | Purpose |
+| --- | --- |
+| `main` | Tracks upstream `main` without personal distribution changes. |
+| `feat/table-favorites` | Source branch for the table favorites contribution PR; updated separately when maintaining that contribution. |
+| `preview` | Integrates upstream and feature branches, compatibility fixes, and distribution settings for releases. |
+
+Routine release integration happens only on `preview`; it is not merged back into the feature branch. The favorites feature has been submitted upstream as a PR; its review and merge status is independent of this distribution's releases.
+
+### Current update limitation
+
+This distribution does not yet have an independent automatic update channel. Download new versions manually from this repository's Releases. **The app still retains upstream update functionality: do not use in-app updates for this distribution, as an official upstream build may replace it and omit its additional features.**
+
+The original license and attribution are retained. Thanks to the upstream authors and contributors. The documentation below is retained from upstream; its download links, badges, services, and platform descriptions refer to the upstream project unless stated otherwise.
+
+---
+
 <div align="center">
   <p style="font-size: 18px; white-space: nowrap;"><strong>100+ databases in 25 MB. Desktop, Docker, CLI, built-in AI assistant, and MCP Server.</strong></p>
 
