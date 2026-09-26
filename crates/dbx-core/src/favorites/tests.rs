@@ -1,6 +1,8 @@
 use super::*;
 use tempfile::TempDir;
 
+const CONNECTION_CONFIG: &str = r#"{"id":"c1","name":"Favorites test","db_type":"postgres","host":"localhost","port":5432,"username":"","password":"","database":"db"}"#;
+
 fn input(table: &str, code: Option<&str>) -> CreateTableFavorite {
     CreateTableFavorite {
         target: FavoriteTarget {
@@ -21,7 +23,7 @@ async fn setup() -> (TempDir, Storage) {
     let storage = Storage::open(&dir.path().join("dbx.db")).await.unwrap();
     storage
         .with_conn(|conn| {
-            conn.execute("INSERT INTO connections (id, config_json) VALUES ('c1', '{}')", [])
+            conn.execute("INSERT INTO connections (id, config_json) VALUES ('c1', ?1)", [CONNECTION_CONFIG])
                 .map_err(|e| e.to_string())?;
             Ok(())
         })
@@ -220,7 +222,8 @@ async fn favorites_old_database_upgrade_and_whole_database_copy() {
     let source = tempfile::tempdir().unwrap();
     let path = source.path().join("dbx.db");
     let conn = Connection::open(&path).unwrap();
-    conn.execute_batch("CREATE TABLE connections (id TEXT PRIMARY KEY, config_json TEXT NOT NULL); INSERT INTO connections VALUES ('c1', '{}');").unwrap();
+    conn.execute_batch("CREATE TABLE connections (id TEXT PRIMARY KEY, config_json TEXT NOT NULL);").unwrap();
+    conn.execute("INSERT INTO connections VALUES ('c1', ?1)", [CONNECTION_CONFIG]).unwrap();
     drop(conn);
     let storage = Storage::open(&path).await.unwrap();
     let a = storage.create_table_favorite(input("a", None)).await.unwrap().item;
