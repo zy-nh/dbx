@@ -78,7 +78,7 @@
     <a href="https://mcptoplist.com/server/io.github.t8y2%2Fdbx"><img src="https://mcptoplist.com/badge/io.github.t8y2%2Fdbx.svg" alt="MCP Toplist" /></a>
   </p>
 	  <p>
-    <a href="README.md">English</a> | 简体中文
+    简体中文 | <a href="README.en.md">English</a>
   </p>
 
   <p>
