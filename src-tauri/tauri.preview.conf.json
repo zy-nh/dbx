@@ -1,0 +1,17 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "DBX Preview",
+  "identifier": "com.dbx.app.preview",
+  "bundle": {
+    "targets": ["nsis"],
+    "createUpdaterArtifacts": false,
+    "fileAssociations": []
+  },
+  "plugins": {
+    "deep-link": {
+      "desktop": {
+        "schemes": ["dbx-preview"]
+      }
+    }
+  }
+}
