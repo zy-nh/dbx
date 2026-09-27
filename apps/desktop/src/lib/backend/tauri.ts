@@ -899,6 +899,14 @@ export async function saveHistoryRetentionLimit(limit: number): Promise<void> {
   return invoke("save_history_retention_limit", { limit });
 }
 
+export async function loadMcpHistoryRetentionLimit(): Promise<number> {
+  return invoke("load_mcp_history_retention_limit");
+}
+
+export async function saveMcpHistoryRetentionLimit(limit: number): Promise<void> {
+  return invoke("save_mcp_history_retention_limit", { limit });
+}
+
 export async function loadMaxRetries(): Promise<number> {
   return invoke("load_max_retries");
 }
@@ -2528,8 +2536,8 @@ export async function exportDocsHtml(filePath: string, snapshot: SchemaSnapshot,
   return invoke("docs_export_html", { filePath, snapshot, annotations, lang });
 }
 
-export async function saveConnections(configs: ConnectionConfig[]): Promise<void> {
-  return invoke("save_connections", { configs });
+export async function saveConnections(configs: ConnectionConfig[], removedIds: string[] = []): Promise<void> {
+  return invoke("save_connections", { configs, removedIds });
 }
 
 export async function loadConnections(): Promise<ConnectionConfig[]> {
@@ -2680,6 +2688,14 @@ export async function writePluginLocalFileChunk(pluginId: string, handleId: stri
 
 export async function closePluginLocalFile(pluginId: string, handleId: string): Promise<void> {
   return invoke("plugin_file_close", { pluginId, handleId });
+}
+
+export async function openPluginMedia(pluginId: string, method: string, params: Record<string, unknown>): Promise<string> {
+  return invoke("plugin_media_open", { pluginId, method, params });
+}
+
+export async function closePluginMedia(pluginId: string, token: string): Promise<void> {
+  return invoke("plugin_media_close", { pluginId, token });
 }
 
 export async function getPluginUiStorage(pluginId: string, key: string): Promise<unknown> {
@@ -5103,6 +5119,11 @@ export interface HistoryEntry {
   affected_rows?: number | null;
   rollback_sql?: string | null;
   details_json?: string | null;
+  source?: "sql" | "mcp" | "other";
+  mcp_tool_name?: string | null;
+  mcp_request_json?: string | null;
+  mcp_response_json?: string | null;
+  mcp_session_id?: string | null;
 }
 
 export interface HistoryConnectionFilter {
@@ -5129,6 +5150,8 @@ export interface HistorySearchRequest {
   ended_at?: string;
   cursor?: HistoryCursor;
   limit: number;
+  source?: "sql" | "mcp" | "other";
+  mcp_tool_name?: string;
 }
 
 export interface HistorySearchResult {
@@ -5167,6 +5190,14 @@ export async function loadRedisHistory(limit = 100, offset = 0): Promise<History
 
 export async function clearHistory(): Promise<void> {
   return invoke("clear_history");
+}
+
+export async function clearHistoryBySource(source: string): Promise<void> {
+  return invoke("clear_history_by_source", { source });
+}
+
+export async function cleanupMcpHistoryRetention(): Promise<number> {
+  return invoke("cleanup_mcp_history_retention");
 }
 
 export async function clearRedisHistory(): Promise<void> {
@@ -5310,7 +5341,7 @@ export interface TransferProgress {
   transferFailuresOmitted?: number;
 }
 
-export async function startTransfer(request: TransferRequest, onProgress: (progress: TransferProgress) => void): Promise<void> {
+export async function startTransfer(request: TransferRequest, onProgress: (progress: TransferProgress) => void, onStarted?: () => void): Promise<void> {
   return new Promise((resolve, reject) => {
     let unlisten: UnlistenFn | null = null;
     void (async () => {
@@ -5325,6 +5356,7 @@ export async function startTransfer(request: TransferRequest, onProgress: (progr
         });
 
         await invoke("start_transfer", { request });
+        onStarted?.();
       } catch (e) {
         unlisten?.();
         reject(e instanceof BackendErrorException ? e : new BackendErrorException(e));
@@ -5361,6 +5393,7 @@ export async function sortTablesByFkDependency(options: SortTablesByFkOptions): 
 
 // --- Table File Import ---
 export type TableImportMode = "append" | "truncate";
+export type TableImportConflictPolicy = "error" | "skip" | "updateExisting";
 export type TableImportStatus = "running" | "done" | "error" | "cancelled";
 export type TableImportPhase = "preparing" | "detectingEncoding" | "reading" | "writing" | "finalizing" | "done";
 export type TableImportSourceFormat = "csv" | "tsv" | "delimited" | "json" | "excel" | "sql";
@@ -5437,6 +5470,8 @@ export interface TableImportRequest {
   dateTimeFormat?: string;
   preparedSource?: TableImportPreparedSource | null;
   retainSource?: boolean;
+  conflictPolicy?: TableImportConflictPolicy;
+  skipDuplicateRows?: boolean;
 }
 
 export interface TableImportSummary {

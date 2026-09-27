@@ -1757,7 +1757,7 @@ watch([() => props.specialPageTabs?.settingsActive, () => props.specialPageTabs?
                     </div>
                   </CustomContextMenu>
                 </template>
-                <div v-if="!section.pinned" :class="tabTailDragRegionClass" data-tauri-drag-region />
+                <div v-if="!section.pinned" :class="tabTailDragRegionClass" data-tauri-drag-region="false" />
               </div>
             </div>
           </template>
